@@ -36,7 +36,7 @@ INSTALL_REQUIRES = [
     "click>=8.0.0",
     "toml>=0.10.2",
     "sqlalchemy==2.0",
-    "jinja2==3.0.3",
+    "jinja2==3.1.6",
     "psycopg[binary]==3.1.8",
     "google-cloud-bigquery>=2.34.3",
 ]
