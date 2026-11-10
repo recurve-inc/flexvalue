@@ -133,7 +133,9 @@ BIG_QUERY_CHUNK_SIZE = 10000
 
 class DBManager:
     @staticmethod
-    def get_db_manager(fv_config: FLEXValueConfig):
+    def get_db_manager(
+        fv_config: FLEXValueConfig, bigquery_client: bigquery.Client = None
+    ):
         """Factory for the correct instance of DBManager child class."""
         if not fv_config.database_type or fv_config.database_type not in SUPPORTED_DBS:
             raise FLEXValueException(
@@ -144,7 +146,7 @@ class DBManager:
         elif fv_config.database_type == "postgresql":
             return PostgresqlManager(fv_config)
         elif fv_config.database_type == "bigquery":
-            return BigQueryManager(fv_config)
+            return BigQueryManager(fv_config, bigquery_client)
         else:
             raise FLEXValueException(
                 f"Unsupported database_type. Please choose one of {SUPPORTED_DBS}"
@@ -1011,7 +1013,7 @@ class SqliteManager(DBManager):
 
 
 class BigQueryManager(DBManager):
-    def __init__(self, fv_config: FLEXValueConfig):
+    def __init__(self, fv_config: FLEXValueConfig, client: bigquery.Client = None):
         super().__init__(fv_config)
         self.template_env = Environment(
             loader=PackageLoader("flexvalue", "templates"),
@@ -1025,7 +1027,11 @@ class BigQueryManager(DBManager):
             self.config.therms_profiles_table,
             self.config.project_info_table,
         ]
-        self.client = bigquery.Client(project=self.config.project)
+        self.client = (
+            client
+            if client is not None
+            else bigquery.Client(project=self.config.project)
+        )
 
     def _get_target_dataset(self):
         # Use an output table because we know those have write permissions

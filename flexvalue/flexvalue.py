@@ -25,13 +25,17 @@ from .db import (
 
 
 class FlexValueRun:
-    def __init__(self, config_file=None, **kwargs):
+    def __init__(self, config_file=None, *, bigquery_client=None, **kwargs):
         try:
             self.config = FLEXValueConfig.from_file(config_file)
         except TypeError:
             self.config = FLEXValueConfig(**kwargs)
+        if bigquery_client is not None and self.config.database_type == "bigquery":
+            self.config.project = bigquery_client.project
         self.config.validate()
-        self.db_manager = DBManager.get_db_manager(self.config)
+        self.db_manager = DBManager.get_db_manager(
+            self.config, bigquery_client=bigquery_client
+        )
         # if resetting any tables, do those before we load:
         if self.config.reset_elec_load_shape:
             self.db_manager.reset_elec_load_shape()

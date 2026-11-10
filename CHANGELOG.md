@@ -4,7 +4,7 @@ Changelog
 Development
 -----------
 
-* Placeholder
+* Add a keyword-only bigquery_client argument to FlexValueRun. BigQuery runs use that client, and its project, instead of building their own.
 
 2.0.8
 -----
